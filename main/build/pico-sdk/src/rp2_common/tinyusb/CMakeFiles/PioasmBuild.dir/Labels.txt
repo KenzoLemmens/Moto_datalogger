@@ -1,0 +1,13 @@
+# Target labels
+ PioasmBuild
+# Source files and their labels
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/CMakeFiles/PioasmBuild
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/CMakeFiles/PioasmBuild.rule
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/CMakeFiles/PioasmBuild-complete.rule
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/pioasm/src/PioasmBuild-stamp/PioasmBuild-build.rule
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/pioasm/src/PioasmBuild-stamp/PioasmBuild-configure.rule
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/pioasm/src/PioasmBuild-stamp/PioasmBuild-download.rule
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/pioasm/src/PioasmBuild-stamp/PioasmBuild-install.rule
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/pioasm/src/PioasmBuild-stamp/PioasmBuild-mkdir.rule
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/pioasm/src/PioasmBuild-stamp/PioasmBuild-patch.rule
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pico-sdk/src/rp2_common/tinyusb/pioasm/src/PioasmBuild-stamp/PioasmBuild-update.rule

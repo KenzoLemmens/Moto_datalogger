@@ -1,0 +1,3 @@
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pioasm/CMakeFiles/pioasm.dir
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pioasm/CMakeFiles/edit_cache.dir
+/Users/kenzo/Documents/Code/Moto_datalogger/main/build/pioasm/CMakeFiles/rebuild_cache.dir
