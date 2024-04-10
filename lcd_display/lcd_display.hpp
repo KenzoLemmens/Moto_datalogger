@@ -5,7 +5,6 @@ class LCDdisplay {
 	
 	private:
 	int LCDpins[6];
-	uint bl_pwm_pin = 255;
 	uint32_t LCDmask_c = 0 ; // with clock
 	uint32_t LCDmask = 0 ; //without clock
 	int no_chars;
@@ -16,7 +15,6 @@ class LCDdisplay {
 	
 	uint32_t pin_values_to_mask(uint raw_bits[],int length);
 
-	void init_pwm_pin(uint pin);
 	
 	void uint_into_8bits(uint raw_bits[], uint one_byte);
 	
@@ -29,19 +27,15 @@ class LCDdisplay {
 	
 	LCDdisplay(int bit4_pin, int bit5_pin, int bit6_pin, int bit7_pin, int rs_pin, int e_pin, int width, int depth, MDataLogger* logger);
 	
-	void set_backlight(int brightness);
-	
 	void clear();
 
 	void cursor_on(bool blink);
 	
 	void init() ;
 
-	void goto_pos(int pos, int line);
+	void goto_pos(char pos_i, char line);
 	
-	void print(const char * str);
-		
-	void print_wrapped(const char * str);
+	void print(const char * str, char pos_i, char line);
 	
 	void display_off() ;
 	

@@ -16,19 +16,20 @@
 	
 using namespace std;
 
-bool cleared = false;
+bool cleared = true;
+bool toInit = true;
 
-	uint32_t LCDdisplay::pin_values_to_mask(uint raw_bits[],int length) {   // Array of Bit 7, Bit 6, Bit 5, Bit 4, RS(, clock)
-		uint32_t result = 0 ;
-		uint pinArray[32] ;
-		for (int i = 0 ; i < 32; i++) {pinArray[i] = 0;}
-		for (int i = 0 ; i < length ; i++) {pinArray[this->LCDpins[i]]= raw_bits[i];}
-		for (int i = 0 ; i < 32; i++) {
-			result = result << 1 ;
-			result += pinArray[31-i] ;
-		}
-		return result ;
-	};
+uint32_t LCDdisplay::pin_values_to_mask(uint raw_bits[],int length) {   // Array of Bit 7, Bit 6, Bit 5, Bit 4, RS(, clock)
+	uint32_t result = 0 ;
+	uint pinArray[32] ;
+	for (int i = 0 ; i < 32; i++) {pinArray[i] = 0;}
+	for (int i = 0 ; i < length ; i++) {pinArray[this->LCDpins[i]]= raw_bits[i];}
+	for (int i = 0 ; i < 32; i++) {
+		result = result << 1 ;
+		result += pinArray[31-i] ;
+	}
+	return result ;
+};
 	
 	void LCDdisplay::uint_into_8bits(uint raw_bits[], uint one_byte) {  	
 		for (int i = 0 ; i < 8 ; i++ ) {
@@ -36,33 +37,20 @@ bool cleared = false;
 			one_byte = one_byte >> 1 ;
 		}
 	};
-
-	void LCDdisplay::init_pwm_pin(uint pin) {
-		this->bl_pwm_pin = pin ;
-		gpio_set_function(pin, GPIO_FUNC_PWM);
-		uint slice_num = pwm_gpio_to_slice_num(pin);
-    	pwm_config config = pwm_get_default_config();
-		pwm_config_set_clkdiv(&config, 500.f);
-		pwm_config_set_wrap(&config, 100); 
-		pwm_init(slice_num, &config, true);	
-	}
 	
 	void LCDdisplay::send_raw_data_one_cycle(uint raw_bits[]) { // Array of Bit 7, Bit 6, Bit 5, Bit 4, RS
 		uint32_t bit_value = pin_values_to_mask(raw_bits,5) ;
 		gpio_put_masked(this->LCDmask, bit_value) ;
-		gpio_put(this->LCDpins[E], HIGH) ;
-		sleep_ms(1.2) ;
-		gpio_put(this->LCDpins[E], LOW) ; // gpio values on other pins are pushed at the HIGH->LOW change of the clock. 
-		//sleep_ms(1.2) ;
+		gpio_put(this->LCDpins[E], HIGH);
+		sleep_us(50);
+		gpio_put(this->LCDpins[E], LOW);
 	};
 		
-	void LCDdisplay::send_full_byte(uint rs, uint databits[]) { // RS + array of Bit7, ... , Bit0
-		// send upper nibble (MSN)
+	void LCDdisplay::send_full_byte(uint rs, uint databits[]) {
 		uint rawbits[5];
 		rawbits[4] = rs ;
 		for (int i = 0 ; i<4 ; i++) { rawbits[i]=databits[i];}
 		send_raw_data_one_cycle(rawbits);
-		// send lower nibble (LSN)
 		for (int i = 0; i<4 ; i++) { rawbits[i]=databits[i+4];}
 		send_raw_data_one_cycle(rawbits);
 	};
@@ -75,49 +63,28 @@ bool cleared = false;
 		this->LCDpins[3] = bit4_pin;
 		this->LCDpins[4] = rs_pin;
 		this->LCDpins[5] = e_pin;
-		this->bl_pwm_pin = 255 ;
 		this->no_chars = width;
 		this->no_lines = depth;
 		this->logger = mDataLog;
+		init();
 	};
 
 	void LCDdisplay::clear() {
 		uint clear_display[8] = {0,0,0,0,0,0,0,1};
 		send_full_byte(COMMAND, clear_display);
-		sleep_ms(10) ; // extra sleep due to equipment time needed to clear the display
+		sleep_us(10) ; // extra sleep due to equipment time needed to clear the display
 	};
-	
-
-		
-	void LCDdisplay::display_off() {
-		uint command_display[8] = {0,0,0,0,1,0,0,0};
-		command_display[7] = this->cursor_status[1];
-		command_display[6] = this->cursor_status[0];		
-		send_full_byte(COMMAND, command_display);
-	};
-
-	void LCDdisplay::display_on() {
-		uint command_display[8] = {0,0,0,0,1,1,0,0};
-		command_display[7] = this->cursor_status[1];
-		command_display[6] = this->cursor_status[0];		
-		send_full_byte(COMMAND, command_display);
-	};
-	
-	void LCDdisplay::set_backlight(int brightness){
-		if ( this->bl_pwm_pin < 30) {
-		   pwm_set_gpio_level(this->bl_pwm_pin, brightness);
-		}
-	}
 
 	void LCDdisplay::init() { // initialize the LCD
-	
-		uint all_ones[6] = {1,1,1,1,1,1};
-		uint set_function_8[5] = {0,0,1,1,0};
-		uint set_function_4a[5] = {0,0,1,0,0};
-		
-		uint set_function_4[8] = {0,0,1,0,0,0,0,0};
-		uint cursor_set[8] = {0,0,0,0,0,1,1,0};
-		uint display_prop_set[8] = {0,0,0,0,1,1,0,0};
+		sleep_ms(15);
+		uint all_ones[6] = 			{1,1,1,1,1,1};
+		uint functionSet[8] = 		{0,0,1,1,0,0,0,0};
+		uint interfaceLength[8] = 	{0,0,1,0,0,0,0,0};
+		uint lcdProps[8] = 			{0,0,1,0,1,0,0,0};
+		uint lockLcdProps[8] = 		{0,0,0,0,1,0,0,0};
+		uint lcdClear[8] = 			{0,0,0,0,0,0,0,1};
+		uint entryMode[8] = 		{0,0,0,0,0,1,1,0};
+		uint cursorMode[8] = 		{0,0,0,0,1,1,0,0};
 		
 		//set mask, initialize masked pins and set to LOW 
 		this->LCDmask_c = pin_values_to_mask(all_ones,6);
@@ -126,100 +93,68 @@ bool cleared = false;
 		gpio_set_dir_out_masked(this->LCDmask_c);	// Set as output all LCDpins
 		gpio_clr_mask(this->LCDmask_c);				// LOW on all LCD pins 
 		
-		//set LCD to 4-bit mode and 1 or 2 lines
-		//by sending a series of Set Function commands to secure the state and set to 4 bits
-		if (no_lines == 2 || no_lines == 4) { set_function_4[4] = 1; };
-		send_raw_data_one_cycle(set_function_8);
-		send_raw_data_one_cycle(set_function_8);
-		send_raw_data_one_cycle(set_function_8);
-		send_raw_data_one_cycle(set_function_4a);
+		send_full_byte(COMMAND, functionSet);
+		sleep_us(4100);
+		send_full_byte(COMMAND, functionSet);
+		sleep_us(100);
+		send_full_byte(COMMAND, functionSet);
+
+		send_full_byte(COMMAND, interfaceLength);
+		send_full_byte(COMMAND, lcdProps);
+		send_full_byte(COMMAND, entryMode);
 		
-		//getting ready
-		send_full_byte(COMMAND, set_function_4);
-		send_full_byte(COMMAND, cursor_set);
-		send_full_byte(COMMAND, display_prop_set);
-		clear() ;
+		send_full_byte(COMMAND, lcdClear);
+		sleep_ms(5);
+		send_full_byte(COMMAND, cursorMode);
 
-		if (this->bl_pwm_pin < 30 ){
-			init_pwm_pin(this->bl_pwm_pin);		};
-			
-		this->cursor_status[0] = 0;
-		this->cursor_status[1] = 0;
-
-		uint no_cursor[8] = {0,0,0,0,1,1,0,0};
-		send_full_byte(COMMAND, no_cursor);
+		sleep_ms(50);
+		print("     ____  ___ ", 0, 0);
+		print("    |__ / |_  )", 0, 1);
+		print("     |_ |  / / ", 0, 2);
+		print("    |___/ /___|", 0, 3);
+	
 	};
 
-	void LCDdisplay::goto_pos(int pos_i, int line) {
+	void LCDdisplay::goto_pos(char pos_i, char line) {
 		uint eight_bits[8];
-		uint pos = (uint)pos_i;
-		switch (no_lines) {
-			case 2: 
-				pos = 64*line+ pos + 0b10000000; 
-				break ;
-			case 4: 	
-				if (line == 0 || line == 1) {
-					pos = 64*line+ pos + 0b10000000; 
-				} else {
-					pos = 64*((line-1)/2) + 20 + pos + 0b10000000;
-				};
-				break;
-			default:
-				pos = pos ;
-		};
-		uint_into_8bits(eight_bits,pos);
+
+		if (line == 0 || line == 1) pos_i = 64*line+ pos_i + 0b10000000; 
+		else pos_i = 64*((line-1)/2) + 20 + pos_i + 0b10000000;
+
+		uint_into_8bits(eight_bits,pos_i);
 		send_full_byte(COMMAND,eight_bits);
 	};
 	
-	void LCDdisplay::print(const char * str) {
+	void LCDdisplay::print(const char * str, char pos_i, char line) {
+		goto_pos(pos_i, line);
 		uint eight_bits[8];
 		int i = 0 ;
 		while (str[i] != 0) {
 			uint_into_8bits(eight_bits,(uint)(str[i]));
 			send_full_byte(DATA, eight_bits);
 			++i;
-		}
-	};
-		
-	void LCDdisplay::print_wrapped(const char * str) {
-		uint eight_bits[8];
-		int i = 0 ;
-		
-		goto_pos(0,0);
-
-		while (str[i] != 0) {
-			uint_into_8bits(eight_bits,(uint)(str[i]));
-			send_full_byte(DATA, eight_bits);
-			++i;
-			if (i%no_chars == 0) { goto_pos(0,i/no_chars); }
 		}
 	};
 				
 
-void LCDdisplay::printLast(const char * str) {
-	goto_pos(0,0);
-	print(str);
-}
+void LCDdisplay::printLast(const char * str) { print(str, 0, 0); }
 
-void LCDdisplay::printDiff(const char * str) {
-	goto_pos(13,0);
-	print(str);
-}
+void LCDdisplay::printDiff(const char * str) { print(str, 13, 0); }
 
-void LCDdisplay::printBest(const char * str) {
-	goto_pos(0,1);
-	print(str);
-}
+void LCDdisplay::printBest(const char * str) { print(str, 0, 1); }
 
 void LCDdisplay::printSession() {
-	if (this->logger->recording) {
-		string session = this->logger->getSessionTimeStr();
-		goto_pos(0,3);
-		print(session.c_str());
+	if (logger->recording) {
+		if(toInit) {
+			clear();
+			toInit = !toInit;
+		}
+		string session = logger->getSessionTimeStr();
+		print(session.c_str(), 0, 3);
 		cleared = false;
 	} else if (!cleared) {
-		goto_pos(0,3);
-		print("--:--:--");
+		logger->resetLogger();
+		print("--:--", 0, 3);
 		cleared = !cleared;
 	}
 }

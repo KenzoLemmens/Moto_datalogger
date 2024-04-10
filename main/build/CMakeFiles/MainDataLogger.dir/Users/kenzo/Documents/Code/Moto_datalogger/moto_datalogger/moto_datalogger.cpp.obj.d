@@ -164,4 +164,6 @@ CMakeFiles/MainDataLogger.dir/Users/kenzo/Documents/Code/Moto_datalogger/moto_da
  /Users/kenzo/arm-gnu-toolchain/arm-none-eabi/include/c++/12.3.1/ostream \
  /Users/kenzo/arm-gnu-toolchain/arm-none-eabi/include/c++/12.3.1/bits/ostream.tcc \
  /Users/kenzo/arm-gnu-toolchain/arm-none-eabi/include/c++/12.3.1/bits/istream.tcc \
- /Users/kenzo/arm-gnu-toolchain/arm-none-eabi/include/c++/12.3.1/bits/sstream.tcc
+ /Users/kenzo/arm-gnu-toolchain/arm-none-eabi/include/c++/12.3.1/bits/sstream.tcc \
+ /Users/kenzo/arm-gnu-toolchain/arm-none-eabi/include/c++/12.3.1/array \
+ /Users/kenzo/arm-gnu-toolchain/arm-none-eabi/include/c++/12.3.1/compare

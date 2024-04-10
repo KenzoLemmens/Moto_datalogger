@@ -11,11 +11,18 @@ class MDataLogger {
     MDataLogger();
     uint startTime;
     bool recording;
-    uint lastTrigger;
+    uint bestLap; // 
+    uint lastLap;
+    uint startLap; 
+    int lapDiff;
+    string lastStr;
+    string bestStr;
+    string diffStr;
 
-    string intToStr(short number);
+    string intToStr(uint number);
     string getSessionTimeStr();
     uint getSessionTime();
-    
-				
+    void recordLap(long callTime);
+    string msToStr(char type, int ms);
+    void resetLogger();
 };
